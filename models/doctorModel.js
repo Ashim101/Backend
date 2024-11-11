@@ -12,6 +12,11 @@ const doctorSchema = new mongoose.Schema({
         unique: true
     },
 
+    password: {
+        type: String,
+        required: true,
+    },
+
 
     image: {
         type: String,
