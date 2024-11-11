@@ -1,5 +1,6 @@
 import validator from 'validator'
 import { v2 as cloudinary } from 'cloudinary'
+import jwt from 'jsonwebtoken'
 
 import doctorModel from '../models/doctorModel.js';
 import bcrypt from 'bcrypt'
@@ -74,4 +75,24 @@ const addDoctor = async (req, res) => {
     }
 };
 
-export { addDoctor };
+
+const adminLogin = (req, res) => {
+
+    console.log(req.body)
+    const { email, password } = req.body
+
+    if (email === process.env.ADMIN_EMAIL && password === process.env.ADMIN_PASSWORD) {
+        const token = jwt.sign({ email, password }, process.env.JWT_SECRET_KEY, {
+            expiresIn: '1h',
+        });
+        return res.json({ token })
+
+    }
+    else {
+        return res.json({ success: false, msg: "Error occured" })
+    }
+
+
+}
+
+export { addDoctor, adminLogin };
