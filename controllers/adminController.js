@@ -7,16 +7,18 @@ import bcrypt from 'bcrypt'
 import { json } from 'express';
 const addDoctor = async (req, res) => {
     try {
+        console.log("arrived here")
         const {
             name, email, speciality, degree, experience,
             about, available, fees, address, password
         } = req.body;
 
+        console.log(name, email)
 
 
 
         if (!name || !email || !speciality || !degree || !experience || !about || available === undefined || !fees || !address || !password) {
-            return res.status(400).json({ success: true, message: "All fields are required" });
+            return res.status(400).json({ success: false, message: "All fields are required" });
         }
 
 
@@ -34,7 +36,9 @@ const addDoctor = async (req, res) => {
 
         const existingDoctor = await doctorModel.findOne({ email });
         if (existingDoctor) {
-            return res.status(400).json({ success: false, message: "Doctor with this email already exists" });
+            console.log("doctor exist")
+            return res.json({ success: false, message: "Doctor with this email already exists" });
+
         }
 
         const salt = await bcrypt.genSalt(10)
@@ -68,7 +72,7 @@ const addDoctor = async (req, res) => {
         // Save the new doctor to the database
         await newDoctor.save();
 
-        return res.status(201).json({ message: "Doctor added successfully", doctor: newDoctor });
+        return res.status(201).json({ success: true, message: "Doctor added successfully", doctor: newDoctor });
 
     } catch (err) {
         res.status(500).json({ message: "Server error", error: err.message });
@@ -85,11 +89,11 @@ const adminLogin = (req, res) => {
         const token = jwt.sign({ email, password }, process.env.JWT_SECRET_KEY, {
             expiresIn: '1h',
         });
-        return res.json({ token })
+        return res.json({ success: true, token })
 
     }
     else {
-        return res.json({ success: false, msg: "Error occured" })
+        return res.json({ success: false, msg: "Credentials doesnot match" })
     }
 
 

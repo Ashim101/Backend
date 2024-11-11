@@ -11,5 +11,6 @@ const storage = multer.diskStorage({
 })
 
 const upload = multer({ storage: storage })
+console.log("multer midware")
 
 export default upload

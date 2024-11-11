@@ -4,6 +4,7 @@ import jwt from 'jsonwebtoken'
 const adminAuth = (req, res, next) => {
 
     const { atoken } = req.headers
+    console.log("auth verigied", atoken)
     try {
 
 
