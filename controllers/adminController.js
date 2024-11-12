@@ -101,14 +101,32 @@ const adminLogin = (req, res) => {
 
 const allDoctors = async (req, res) => {
     try {
+        console.log("insidealldoctors")
         const doctors = await doctorModel.find({}).select('-password');
         return res.json({ success: true, doctors })
     }
     catch (e) {
         console.log(e)
-        res.status(500).json({ message: "Server error", error: err.message });
+        res.status(500).json({ success: false, message: "Server error", error: err.message });
 
     }
+
 }
 
-export { addDoctor, adminLogin, allDoctors };
+const changeAvailability = async (req, res) => {
+    const { id } = req.body
+    console.log("Inside change and id is ", id)
+    try {
+        const docData = await doctorModel.findById(id)
+        await doctorModel.findByIdAndUpdate(id, { available: !docData.available });
+        res.json({ success: true, message: "Availability changed" })
+
+
+    } catch (e) {
+        console.log(e)
+        res.status(500).json({ success: false, message: "Server error", error: e.message });
+    }
+
+}
+
+export { addDoctor, adminLogin, allDoctors, changeAvailability };
