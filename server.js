@@ -4,6 +4,7 @@ import 'dotenv/config'
 import connectDb from './config/mongodb.js'
 import connectCloudinary from './config/cloudinary.js'
 import adminRouter from './routes/adminRoutes.js'
+import doctorRouter from './routes/doctorRoutes.js'
 
 const app = express()
 
@@ -19,6 +20,8 @@ app.get('/', (req, res) => {
 })
 
 app.use('/api/admin', adminRouter)
+app.use('/api/doctor', doctorRouter)
+
 
 connectCloudinary()
 
