@@ -189,9 +189,10 @@ const updateProfile = async (req, res) => {
 
 const bookAppointment = async (req, res) => {
     try {
-        const { userId, docId, slotDate, slotTime } = req.body
+        const { docId, slotDate, slotTime } = req.body
+        const userId = req.body.id
 
-        docData = await doctorModel.findById(docId).select("-password")
+        const docData = await doctorModel.findById(docId).select("-password")
 
         if (!docData.available) {
             res.json({ success: false, message: "Doctor not availble" })
@@ -199,8 +200,8 @@ const bookAppointment = async (req, res) => {
         let slots_booked = docData.slots_booked
 
         if (slots_booked[slotDate]) {
-            if (slots_booked[slotDate.includes(slotTime)]) {
-                res.json({ success: false, message: "Slot not available" })
+            if (slots_booked[slotDate].includes(slotTime)) {
+                return res.json({ success: false, message: "Slot not available" })
             }
             else {
                 slots_booked[slotDate].push(slotTime)
@@ -215,6 +216,7 @@ const bookAppointment = async (req, res) => {
 
         const userData = await userModel.findById(userId).select("-password")
         delete docData.slots_booked;
+        console.log(userData, docData)
         const appointmentData = {
             userId,
             docId,
