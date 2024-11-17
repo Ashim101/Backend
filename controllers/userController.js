@@ -244,4 +244,53 @@ const bookAppointment = async (req, res) => {
 }
 
 
-export { userLogin, registerUser, getProfile, updateProfile, bookAppointment };
+const listAppointments = async (req, res) => {
+    const { id } = req.body
+    console.log("inside apointments")
+
+    try {
+
+        const appointments = await appointmentModel.find({ userId: id })
+        res.json({ success: true, appointments })
+        console.log("found and sent")
+
+        return
+
+    } catch (e) {
+        console.error("Error during profile update:", e);
+        return res.status(500).json({ success: false, message: e });
+    }
+
+
+}
+
+
+const cancelAppointment = async (req, res) => {
+    try {
+
+        const { appointmentId, id } = req.body
+        const userId = id;
+        const appointmentData = await appointmentModel.findById(appointmentId)
+        if (appointmentData.userId != userId) {
+            return res.status(401).json({ success: false, message: "Please select your own appointment" })
+        }
+
+        await appointmentModel.findByIdAndUpdate(appointmentId, { cancelled: true })
+
+        const docId = appointmentData.docId
+
+        const docData = await doctorModel.findById(docId)
+        const slots_booked = docData.slots_booked
+
+        slots_booked[appointmentData.slotDate] = docData.slots_booked[appointmentData.slotDate].filter(e => e != appointmentData.slotTime)
+        await doctorModel.findByIdAndUpdate(docId, { slots_booked })
+        return res.json({ success: true, message: "Appointment cancelled successfully" })
+    } catch (e) {
+        console.error("Error during profile update:", e);
+        return res.status(500).json({ success: false, message: e });
+
+    }
+}
+
+
+export { userLogin, registerUser, getProfile, updateProfile, bookAppointment, listAppointments, cancelAppointment };

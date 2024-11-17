@@ -70,6 +70,6 @@ const doctorSchema = new mongoose.Schema({
 
 
 
-const doctorModel = mongoose.model.doctor || mongoose.model('doctor', doctorSchema)
+const doctorModel = mongoose.model('doctor', doctorSchema)
 
 export default doctorModel
