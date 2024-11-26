@@ -152,4 +152,29 @@ const allAppointments = async (req, res) => {
 
 }
 
-export { addDoctor, adminLogin, allDoctors, changeAvailability, allAppointments };
+const cancelAppointment = async (req, res) => {
+    console.log("inside cancel appointments")
+
+    const { appointment_id } = req.body
+
+    try {
+        const appointments = await appointmentModel.findByIdAndUpdate(appointment_id, { cancelled: true })
+
+        return res.json({ success: true, message: "Sucessfully updated" })
+
+
+
+    } catch (e) {
+        console.log(e)
+        res.status(500).json({ success: false, message: "Server error", error: e.message });
+
+    }
+
+
+
+}
+
+
+
+
+export { addDoctor, adminLogin, allDoctors, changeAvailability, allAppointments, cancelAppointment };
