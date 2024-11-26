@@ -6,6 +6,7 @@ import doctorModel from '../models/doctorModel.js';
 import bcrypt from 'bcrypt'
 import { json } from 'express';
 import appointmentModel from '../models/appointmentModel.js';
+import userModel from '../models/userModel.js';
 const addDoctor = async (req, res) => {
     try {
         console.log("arrived here")
@@ -174,7 +175,42 @@ const cancelAppointment = async (req, res) => {
 
 }
 
+const getDashboardData = async (req, res) => {
+    console.log("inside dashboard")
 
 
 
-export { addDoctor, adminLogin, allDoctors, changeAvailability, allAppointments, cancelAppointment };
+    try {
+        const doctors = await doctorModel.find({})
+        const users = await userModel.find({})
+
+        const appointments = await appointmentModel.find({})
+
+        const dashData = {
+            doctors: doctors.length,
+
+            patients: users.length,
+            appointments: appointments.length,
+            latestAppointments: appointments.reverse().slice(0, 5)
+
+
+        }
+
+        return res.json({ success: true, message: dashData })
+
+
+
+    } catch (e) {
+        console.log(e)
+        res.status(500).json({ success: false, message: "Server error", error: e.message });
+
+    }
+
+
+
+}
+
+
+
+
+export { addDoctor, adminLogin, allDoctors, changeAvailability, allAppointments, cancelAppointment, getDashboardData };
