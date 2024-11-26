@@ -5,6 +5,7 @@ import jwt from 'jsonwebtoken'
 import doctorModel from '../models/doctorModel.js';
 import bcrypt from 'bcrypt'
 import { json } from 'express';
+import appointmentModel from '../models/appointmentModel.js';
 const addDoctor = async (req, res) => {
     try {
         console.log("arrived here")
@@ -129,4 +130,26 @@ const changeAvailability = async (req, res) => {
 
 }
 
-export { addDoctor, adminLogin, allDoctors, changeAvailability };
+
+
+const allAppointments = async (req, res) => {
+    console.log("inside all appointments")
+
+    try {
+        const appointments = await appointmentModel.find({})
+
+        return res.json({ success: true, message: appointments })
+
+
+
+    } catch (e) {
+        console.log(e)
+        res.status(500).json({ success: false, message: "Server error", error: e.message });
+
+    }
+
+
+
+}
+
+export { addDoctor, adminLogin, allDoctors, changeAvailability, allAppointments };
