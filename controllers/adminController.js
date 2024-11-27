@@ -20,7 +20,15 @@ const addDoctor = async (req, res) => {
 
 
         if (!name || !email || !speciality || !degree || !experience || !about || available === undefined || !fees || !address || !password) {
+
+            console.log("all fileds required")
             return res.status(400).json({ success: false, message: "All fields are required" });
+        }
+
+        if (!req.file) {
+
+            console.log("Please upload image")
+            return res.status(400).json({ success: false, message: "Please upload an image" });
         }
 
 
@@ -39,7 +47,7 @@ const addDoctor = async (req, res) => {
         const existingDoctor = await doctorModel.findOne({ email });
         if (existingDoctor) {
             console.log("doctor exist")
-            return res.json({ success: false, message: "Doctor with this email already exists" });
+            return res.status(400).json({ success: false, message: "Doctor with this email already exists" });
 
         }
 
@@ -48,18 +56,24 @@ const addDoctor = async (req, res) => {
 
         //uplad image to cloudinary
         const imgfile = req.file
+        console.log(imgfile)
+
+        let img = null
 
 
 
+        if (imgfile) {
+            img = await cloudinary.uploader.upload(imgfile.path)
+            console.log("file uploaded")
+        }
 
-        const img = await cloudinary.uploader.upload(imgfile.path)
-
+        console.log("before creating doctor")
 
         // Create a new doctor
         const newDoctor = new doctorModel({
             name,
             email,
-            image: img.secure_url,
+            image: img ? img.secure_url : "https://media.istockphoto.com/id/1495088043/vector/user-profile-icon-avatar-or-person-icon-profile-picture-portrait-symbol-default-portrait.jpg?s=1024x1024&w=is&k=20&c=oGqYHhfkz_ifeE6-dID6aM7bLz38C6vQTy1YcbgZfx8=",
             speciality,
             degree,
             experience,

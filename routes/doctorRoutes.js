@@ -1,9 +1,11 @@
 import { Router } from "express";
-import doctorList from "../controllers/doctorController.js";
+import { doctorLogin, doctorList } from "../controllers/doctorController.js";
 
 const doctorRouter = Router()
 
 doctorRouter.get("/list", doctorList)
+doctorRouter.post("/login", doctorLogin)
+
 
 
 export default doctorRouter
