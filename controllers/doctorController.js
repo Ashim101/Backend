@@ -2,6 +2,7 @@ import doctorModel from "../models/doctorModel.js"
 import bcrypt from 'bcrypt'
 
 import jwt from 'jsonwebtoken'
+import appointmentModel from "../models/appointmentModel.js";
 
 
 const doctorList = async (req, res) => {
@@ -22,6 +23,7 @@ const doctorList = async (req, res) => {
 const doctorLogin = async (req, res) => {
 
     console.log(req.body)
+    console.log("inside doctor login")
     const { email, password } = req.body
 
 
@@ -53,5 +55,69 @@ const doctorLogin = async (req, res) => {
 
 }
 
+const allAppointments = async (req, res) => {
+    console.log("inside all appointments of doctor")
 
-export { doctorLogin, doctorList }
+    try {
+        const appointments = await appointmentModel.find({ docId: req.body.docId })
+
+        return res.json({ success: true, message: appointments })
+
+
+
+    } catch (e) {
+        console.log(e)
+        res.status(500).json({ success: false, message: "Server error", error: e.message });
+
+    }
+
+
+
+}
+
+const cancelAppointment = async (req, res) => {
+
+
+    console.log("inside cancel appointments")
+
+    const { appointment_id } = req.body
+
+    try {
+        const appointments = await appointmentModel.findByIdAndUpdate(appointment_id, { cancelled: true })
+
+        return res.json({ success: true, message: "Sucessfully updated" })
+
+
+
+    } catch (e) {
+        console.log(e)
+        res.status(500).json({ success: false, message: "Server error", error: e.message });
+
+    }
+}
+
+const finishAppointment = async (req, res) => {
+
+    console.log("inside cancel appointments")
+
+    const { appointment_id } = req.body
+
+    try {
+        await appointmentModel.findByIdAndUpdate(appointment_id, { isCompleted: true })
+
+        return res.json({ success: true, message: "Sucessfully updated" })
+
+
+
+    } catch (e) {
+        console.log(e)
+        res.status(500).json({ success: false, message: "Server error", error: e.message });
+
+    }
+
+
+
+
+}
+
+export { doctorLogin, doctorList, allAppointments, cancelAppointment, finishAppointment }
