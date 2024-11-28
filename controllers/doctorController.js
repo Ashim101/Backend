@@ -120,4 +120,58 @@ const finishAppointment = async (req, res) => {
 
 }
 
-export { doctorLogin, doctorList, allAppointments, cancelAppointment, finishAppointment }
+
+const getDashboardData = async (req, res) => {
+    console.log("inside dashboard")
+
+
+
+    const { docId } = req.body
+    try {
+
+
+        const appointments = await appointmentModel.find({ docId })
+
+        let earning = 0
+        let patients = []
+
+
+
+        appointments.map(appointment => {
+            if (!patients.includes(appointment.userId)) {
+                patients.push(appointment.userId)
+            }
+            if (appointment.isCompleted || appointment.payment) {
+                earning += appointment.amount
+            }
+        })
+
+
+        const dashData = {
+            appointments: appointments.length,
+
+            patients: patients.length,
+            earning,
+            latestAppointments: appointments.reverse().slice(0, 5)
+
+
+        }
+
+        console.log(dashData)
+
+        return res.json({ success: true, message: dashData })
+
+
+
+    } catch (e) {
+        console.log(e)
+        res.status(500).json({ success: false, message: "Server error", error: e.message });
+
+    }
+
+
+
+}
+
+
+export { doctorLogin, doctorList, allAppointments, cancelAppointment, finishAppointment, getDashboardData }
