@@ -173,5 +173,32 @@ const getDashboardData = async (req, res) => {
 
 }
 
+const getprofile = async (req, res) => {
+    console.log("inside get profile")
+    const { docId } = req.body
+    try {
+        const profile = await doctorModel.findById(docId).select("-password")
+        console.log(profile)
+        return res.json({ success: true, profile })
+    } catch (e) {
+        return res.json({ success: false, message: "internal error" })
+    }
+}
+const updateProfile = async (req, res) => {
+    console.log("inside update profile")
+    console.log(req.body)
+    const { address, fees, available } = req.body
+    const { docId } = req.body
+    try {
 
-export { doctorLogin, doctorList, allAppointments, cancelAppointment, finishAppointment, getDashboardData }
+        const doc = await doctorModel.findByIdAndUpdate(docId, { address, fees, available })
+
+        console.log("found and updated", doc)
+        return res.json({ success: true, message: "Profile updated" })
+    } catch (e) {
+        return res.json({ success: false, message: "internal error" })
+    }
+}
+
+
+export { doctorLogin, doctorList, allAppointments, cancelAppointment, finishAppointment, getDashboardData, getprofile, updateProfile }
