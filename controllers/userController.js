@@ -99,10 +99,10 @@ const userLogin = async (req, res) => {
             });
             return res.json({ success: true, token });
         } else {
-            return res.json({ success: false, msg: "Credentials do not match" });
+            return res.json({ success: false, message: "Credentials do not match" });
         }
     } catch (error) {
-        console.error("Error during login:", error);
+        console.log("Error during login:", error);
         return res.status(500).json({ success: false, message: "Internal server error" });
     }
 };
@@ -116,7 +116,7 @@ const getProfile = async (req, res) => {
             res.json({ userData })
         }
     } catch (e) {
-        console.error("Error during login:", error);
+        console.log("Error during login:", error);
         return res.status(500).json({ success: false, message: "Internal server error" });
     }
 
@@ -181,7 +181,7 @@ const updateProfile = async (req, res) => {
 
     } catch (error) {
         // Log any error that occurs
-        console.error("Error during profile update:", error);
+        console.log("Error during profile update:", error);
         return res.status(500).json({ success: false, message: "Internal server error" });
     }
 };
@@ -195,7 +195,7 @@ const bookAppointment = async (req, res) => {
         const docData = await doctorModel.findById(docId).select("-password")
 
         if (!docData.available) {
-            res.json({ success: false, message: "Doctor not availble" })
+            return res.json({ success: false, message: "Doctor not availble" })
         }
         let slots_booked = docData.slots_booked
 
@@ -238,7 +238,7 @@ const bookAppointment = async (req, res) => {
 
     } catch (error) {
         // Log any error that occurs
-        console.error("Error during profile update:", error);
+        console.log("Error during profile update:", error);
         return res.status(500).json({ success: false, message: "Internal server error" });
     }
 }
@@ -257,7 +257,7 @@ const listAppointments = async (req, res) => {
         return
 
     } catch (e) {
-        console.error("Error during profile update:", e);
+        console.loge.log("Error during profile update:", e);
         return res.status(500).json({ success: false, message: e });
     }
 
@@ -286,7 +286,7 @@ const cancelAppointment = async (req, res) => {
         await doctorModel.findByIdAndUpdate(docId, { slots_booked })
         return res.json({ success: true, message: "Appointment cancelled successfully" })
     } catch (e) {
-        console.error("Error during profile update:", e);
+        console.loge.log("Error during profile update:", e);
         return res.status(500).json({ success: false, message: e });
 
     }

@@ -47,7 +47,6 @@ const doctorLogin = async (req, res) => {
             return res.json({ success: false, msg: "Credentials do not match" });
         }
     } catch (error) {
-        console.error("Error during login:", error);
         return res.status(500).json({ success: false, message: "Internal server error" });
     }
 

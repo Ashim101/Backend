@@ -14,7 +14,7 @@ const adminAuth = (req, res, next) => {
             next();
         }
         else {
-            return resjson({ success: false, message: "invalid credentials" })
+            return res.json({ success: false, message: "invalid credentials" })
         }
     } catch (e) {
         return res.json({ success: false, error: e })

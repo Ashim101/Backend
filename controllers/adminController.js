@@ -9,25 +9,21 @@ import appointmentModel from '../models/appointmentModel.js';
 import userModel from '../models/userModel.js';
 const addDoctor = async (req, res) => {
     try {
-        console.log("arrived here")
         const {
             name, email, speciality, degree, experience,
             about, available, fees, address, password
         } = req.body;
 
-        console.log(name, email)
 
 
 
         if (!name || !email || !speciality || !degree || !experience || !about || available === undefined || !fees || !address || !password) {
 
-            console.log("all fileds required")
             return res.status(400).json({ success: false, message: "All fields are required" });
         }
 
         if (!req.file) {
 
-            console.log("Please upload image")
             return res.status(400).json({ success: false, message: "Please upload an image" });
         }
 
@@ -46,7 +42,6 @@ const addDoctor = async (req, res) => {
 
         const existingDoctor = await doctorModel.findOne({ email });
         if (existingDoctor) {
-            console.log("doctor exist")
             return res.status(400).json({ success: false, message: "Doctor with this email already exists" });
 
         }
@@ -56,7 +51,6 @@ const addDoctor = async (req, res) => {
 
         //uplad image to cloudinary
         const imgfile = req.file
-        console.log(imgfile)
 
         let img = null
 
@@ -64,10 +58,8 @@ const addDoctor = async (req, res) => {
 
         if (imgfile) {
             img = await cloudinary.uploader.upload(imgfile.path)
-            console.log("file uploaded")
         }
 
-        console.log("before creating doctor")
 
         // Create a new doctor
         const newDoctor = new doctorModel({
@@ -98,7 +90,6 @@ const addDoctor = async (req, res) => {
 
 const adminLogin = (req, res) => {
 
-    console.log(req.body)
     const { email, password } = req.body
 
     if (email === process.env.ADMIN_EMAIL && password === process.env.ADMIN_PASSWORD) {
@@ -117,12 +108,10 @@ const adminLogin = (req, res) => {
 
 const allDoctors = async (req, res) => {
     try {
-        console.log("insidealldoctors")
         const doctors = await doctorModel.find({}).select('-password');
         return res.json({ success: true, doctors })
     }
     catch (e) {
-        console.log(e)
         res.status(500).json({ success: false, message: "Server error", error: err.message });
 
     }
@@ -131,7 +120,6 @@ const allDoctors = async (req, res) => {
 
 const changeAvailability = async (req, res) => {
     const { id } = req.body
-    console.log("Inside change and id is ", id)
     try {
         const docData = await doctorModel.findById(id)
         await doctorModel.findByIdAndUpdate(id, { available: !docData.available });
@@ -139,7 +127,6 @@ const changeAvailability = async (req, res) => {
 
 
     } catch (e) {
-        console.log(e)
         res.status(500).json({ success: false, message: "Server error", error: e.message });
     }
 
@@ -148,7 +135,6 @@ const changeAvailability = async (req, res) => {
 
 
 const allAppointments = async (req, res) => {
-    console.log("inside all appointments")
 
     try {
         const appointments = await appointmentModel.find({})
@@ -158,7 +144,6 @@ const allAppointments = async (req, res) => {
 
 
     } catch (e) {
-        console.log(e)
         res.status(500).json({ success: false, message: "Server error", error: e.message });
 
     }
@@ -168,7 +153,6 @@ const allAppointments = async (req, res) => {
 }
 
 const cancelAppointment = async (req, res) => {
-    console.log("inside cancel appointments")
 
     const { appointment_id } = req.body
 
