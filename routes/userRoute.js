@@ -1,5 +1,5 @@
 import { Router } from "express";
-import { bookAppointment, cancelAppointment, getProfile, listAppointments, registerUser, updateProfile, userLogin } from "../controllers/userController.js";
+import { bookAppointment, cancelAppointment, getProfile, googleAuth, listAppointments, registerUser, updateProfile, userLogin } from "../controllers/userController.js";
 import upload from "../middlewares/multer.js";
 import userAuth from "../middlewares/userAuth.js";
 
@@ -14,6 +14,8 @@ userRoute.patch("/update-profile", upload.single("image"), userAuth, updateProfi
 userRoute.post("/book-appointment", userAuth, bookAppointment)
 userRoute.get("/appointments", userAuth, listAppointments)
 userRoute.delete("/cancel-appointment", userAuth, cancelAppointment)
+userRoute.post("/google-auth", googleAuth)
+
 
 
 export default userRoute

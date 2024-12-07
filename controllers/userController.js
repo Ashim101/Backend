@@ -8,6 +8,45 @@ import { json } from 'express';
 import userModel from '../models/userModel.js';
 import doctorModel from '../models/doctorModel.js';
 import appointmentModel from '../models/appointmentModel.js';
+import { OAuth2Client } from 'google-auth-library';
+const client = new OAuth2Client(process.env.GOOGLE_CLIENT_ID);
+
+
+
+const googleAuth = async (req, res) => {
+    const { token } = req.body;
+    console.log("inside google auth")
+
+    try {
+        // Verify the Google token
+        const ticket = await client.verifyIdToken({
+            idToken: token,
+            audience: process.env.GOOGLE_CLIENT_ID, // Specify the CLIENT_ID of the app
+        });
+        const payload = ticket.getPayload();
+        console.log(payload)
+
+        // Check if user exists in your database, if not create a new one
+        let user = await userModel.findOne({ email: payload.email });
+        if (!user) {
+            user = new userModel({
+                name: payload.name,
+                email: payload.email,
+                googleid: payload.sub, // Save Google User ID
+            });
+            await user.save();
+        }
+
+        // Generate your app's JWT token
+        const appToken = jwt.sign({ id: user._id, email: user.email }, process.env.JWT_SECRET_KEY, { expiresIn: '1h' });
+
+        res.json({ success: true, token: appToken });
+    } catch (error) {
+        console.error(error);
+        res.status(401).json({ success: false, message: 'Google authentication failed' });
+    }
+};
+
 const registerUser = async (req, res) => {
     try {
         const {
@@ -293,4 +332,4 @@ const cancelAppointment = async (req, res) => {
 }
 
 
-export { userLogin, registerUser, getProfile, updateProfile, bookAppointment, listAppointments, cancelAppointment };
+export { userLogin, registerUser, getProfile, updateProfile, bookAppointment, listAppointments, cancelAppointment, googleAuth };

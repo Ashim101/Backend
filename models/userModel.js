@@ -13,8 +13,11 @@ const userSchema = new mongoose.Schema({
     },
     password: {
         type: String,
-        required: true,
+        required: function () {
+            return !this.googleid;
+        }
     },
+
 
 
 
@@ -48,6 +51,11 @@ const userSchema = new mongoose.Schema({
     phone: {
         type: String,
         default: "0000000000"
+
+    },
+    googleid: {
+        type: Number,
+
 
     }
 
