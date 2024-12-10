@@ -2,16 +2,25 @@
 import validator from 'validator'
 import { v2 as cloudinary } from 'cloudinary'
 import jwt from 'jsonwebtoken'
+import nodemailer from 'nodemailer'
 
 import bcrypt from 'bcrypt'
-import { json } from 'express';
 import userModel from '../models/userModel.js';
 import doctorModel from '../models/doctorModel.js';
 import appointmentModel from '../models/appointmentModel.js';
 import { OAuth2Client } from 'google-auth-library';
+import otpModel from '../models/OTPModel.js'
 const client = new OAuth2Client(process.env.GOOGLE_CLIENT_ID);
 
 
+const transporter = nodemailer.createTransport({
+    service: "gmail",
+
+    auth: {
+        user: process.env.EMAIL,
+        pass: process.env.PASSWORD,
+    },
+});
 
 const googleAuth = async (req, res) => {
     const { token } = req.body;
@@ -42,16 +51,102 @@ const googleAuth = async (req, res) => {
 
         res.json({ success: true, token: appToken });
     } catch (error) {
-        console.error(error);
         res.status(401).json({ success: false, message: 'Google authentication failed' });
     }
 };
 
-const registerUser = async (req, res) => {
+const generateOtp = async (req, res) => {
+    const { email } = req.body;
+
+    if (!email) {
+        return res.json({ success: false, message: "Please enter an email" });
+    }
+
     try {
-        const {
-            name, email, password
-        } = req.body;
+        // Generate a random 6-digit OTP
+        const existinguser = await userModel.findOne({ email })
+        if (existinguser) {
+
+            return res.json({ success: false, message: "User already exist" })
+        }
+        const otp = Math.floor(100000 + Math.random() * 900000); // Generates a number between 100000 and 999999
+
+        // Check if the email already exists (optional: you can delete the old OTP or keep it)
+        const existingOTP = await otpModel.findOne({ email });
+        if (existingOTP) {
+            // Remove old OTP for this email
+            await otpModel.deleteOne({ email });
+        }
+
+        // Create a new OTP entry
+        const newOtp = new otpModel({
+            email: email,
+            otp
+        });
+
+        // Save the OTP to the database
+        await newOtp.save();
+
+        const mailOption = {
+            from: process.env.EMAIL,
+            to: email,
+            subject: "OTP Validation",
+            text: `OPT-${otp}`
+        }
+
+        transporter.sendMail(mailOption, (error, info) => {
+            if (error) {
+                return res.json({ success: false, message: error })
+            }
+            else {
+                return res.json({
+                    success: true,
+                    message: "OTP sent through email"
+                });
+
+            }
+        })
+
+
+        // Respond with success
+
+    } catch (error) {
+        return res.json({
+            success: false,
+            message: "Error generating OTP, please try again later",
+        });
+    }
+};
+
+const verifyOtp = async (req, res) => {
+    const { email, otp } = req.body
+    try {
+        const found = await otpModel.findOne({
+            email
+        })
+        if (!found) {
+            return res.json({ success: false, message: "Email not found. Please try again" })
+        }
+        if (found.otp !== Number(otp)) {
+            return res.json({ success: false, message: "OTP didnot matched. Please try again." })
+        }
+        await otpModel.findOneAndDelete({ email })
+
+        return res.json({ success: true, message: "Welcome to Prescriptio" })
+
+
+    } catch (error) {
+        return res.json({ success: false, message: "Something went wrong. Please try again" })
+
+    }
+}
+
+const registerUser = async (req, res) => {
+    const {
+        name, email, password
+    } = req.body;
+    try {
+
 
 
 
@@ -99,6 +194,7 @@ const registerUser = async (req, res) => {
 
         });
 
+        console.log(newUser)
         // Save the new doctor to the database
         await newUser.save();
         const token = jwt.sign({ id: newUser._id }, process.env.JWT_SECRET_KEY, {
@@ -332,4 +428,4 @@ const cancelAppointment = async (req, res) => {
 }
 
 
-export { userLogin, registerUser, getProfile, updateProfile, bookAppointment, listAppointments, cancelAppointment, googleAuth };
+export { userLogin, registerUser, getProfile, updateProfile, bookAppointment, listAppointments, cancelAppointment, googleAuth, generateOtp, verifyOtp };
